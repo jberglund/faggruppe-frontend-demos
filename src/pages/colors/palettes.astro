@@ -1,0 +1,140 @@
+---
+import Layout from "./_Layout.astro";
+
+const palette = [
+  "50",
+  "100",
+  "200",
+  "300",
+  "400",
+  "500",
+  "600",
+  "700",
+  "800",
+  "900",
+];
+
+// https://tailwindcss.com/docs/customizing-colors
+---
+
+<Layout>
+  <div class="layout">
+    <ok-stack gap="m">
+      <div class="example-swatch">
+        <ok-stack gap="m" horizontal>
+          <div class="mini-swatch"></div>
+          <div class="mini-swatch"></div>
+          <div class="mini-swatch"></div>
+        </ok-stack>
+      </div>
+    </ok-stack>
+    <ok-stack gap="l">
+      <ok-stack horizontal>
+        {
+          palette.map((color) => (
+            <div class={`stolen-palette-swatch swatch-${color}`} />
+          ))
+        }
+      </ok-stack>
+      <ok-stack horizontal justify="space-between">
+        <ok-stack horizontal>
+          <label for="hue">Hue</label>
+          <input
+            class="range-slider"
+            name="hue"
+            type="range"
+            min="0"
+            max="360"
+            step="1"
+          />
+        </ok-stack>
+        <output class="range-slider-output" for="hue">-</output>
+      </ok-stack>
+    </ok-stack>
+  </div>
+</Layout>
+
+<style>
+  :root {
+    --hue: 200;
+  }
+
+  .stolen-palette-swatch {
+    width: 4rem;
+    aspect-ratio: 1;
+    border-radius: 1rem;
+  }
+
+  .swatch-50 {
+    background-color: oklch(from #ecfeff l c var(--hue));
+  }
+  .swatch-100 {
+    background-color: oklch(from #cffafe l c var(--hue));
+  }
+  .swatch-200 {
+    background-color: oklch(from #a5f3fc l c var(--hue));
+  }
+  .swatch-300 {
+    background-color: oklch(from #67e8f9 l c var(--hue));
+  }
+  .swatch-400 {
+    background-color: oklch(from #22d3ee l c var(--hue));
+  }
+  .swatch-500 {
+    background-color: oklch(from #06b6d4 l c var(--hue));
+  }
+  .swatch-600 {
+    background-color: oklch(from #0891b2 l c var(--hue));
+  }
+  .swatch-700 {
+    background-color: oklch(from #0e7490 l c var(--hue));
+  }
+  .swatch-800 {
+    background-color: oklch(from #155e75 l c var(--hue));
+  }
+  .swatch-900 {
+    background-color: oklch(from #164e63 l c var(--hue));
+  }
+  .swatch-950 {
+    background-color: oklch(from #083344 l c var(--hue));
+  }
+
+  .layout {
+    display: grid;
+    place-content: center;
+    gap: 1rem;
+    grid-template-columns: 400px;
+  }
+</style>
+
+<script>
+  const root = getComputedStyle(document.documentElement);
+  function setPropertyAndValue(inputName: string, cssVariable?: string) {
+    const input = document.querySelector(
+      `input[name="${inputName}"]`
+    ) as HTMLInputElement;
+    const output = document.querySelector(
+      `output[for="${inputName}"]`
+    ) as HTMLInputElement;
+    if (!input && !output) return;
+
+    input.value = root.getPropertyValue(cssVariable || `--${inputName}`);
+    output.value = root.getPropertyValue(cssVariable || `--${inputName}`);
+
+    input.addEventListener(
+      "input",
+      (event) => {
+        const target = event.target as HTMLInputElement;
+
+        document.documentElement.style.setProperty(
+          cssVariable || `--${inputName}`,
+          target.value
+        );
+        output.value = target.value;
+      },
+      false
+    );
+  }
+
+  setPropertyAndValue("hue");
+</script>

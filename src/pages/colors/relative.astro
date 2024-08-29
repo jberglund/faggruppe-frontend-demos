@@ -1,0 +1,107 @@
+---
+import Layout from "./_Layout.astro";
+
+// relativa färger!
+// https://www.youtube.com/watch?v=gPacarD9NuA
+// Kevin Powell - Relative colors make so many things easier!
+
+// https://www.youtube.com/watch?v=1z_ViBjdnSw
+// Adam Argyle - Thinking on ways to solve RELATIVE COLORS
+---
+
+<Layout>
+  <div class="layout">
+    <ok-stack gap="m">
+      <div class="example-swatch">
+        <ok-stack gap="m" horizontal>
+          <div class="mini-swatch"></div>
+          <div class="mini-swatch"></div>
+          <div class="mini-swatch"></div>
+        </ok-stack>
+      </div>
+      <ok-stack horizontal justify="space-between">
+        <input class="range-slider" name="hex" type="color" />
+        <output class="range-slider-output" for="hex">-</output>
+      </ok-stack>
+    </ok-stack>
+  </div>
+</Layout>
+
+<style>
+  :root {
+    --hex: #e66465;
+  }
+  .example-swatch {
+    width: 100%;
+    aspect-ratio: 1;
+    background-color: var(--hex);
+
+    display: grid;
+    place-content: center;
+    border-radius: 2rem;
+  }
+
+  .mini-swatch {
+    width: 1.5rem;
+    aspect-ratio: 1/3;
+    border-radius: 0.5rem;
+  }
+
+  .mini-swatch {
+    /* hsl, lab, rbg */
+    background-color: oklch(from var(--hex) 20% 0.12 h);
+  }
+
+  .mini-swatch:nth-child(2) {
+    background-color: oklch(from var(--hex) 70% 0.3 h);
+  }
+
+  .mini-swatch:nth-child(3) {
+    background-color: oklch(from var(--hex) 90% 0.2 h);
+  }
+
+  .stolen-palette-swatch {
+    width: 4rem;
+    aspect-ratio: 1;
+    border-radius: 1rem;
+  }
+
+  .layout {
+    display: grid;
+    place-content: center;
+    gap: 1rem;
+    grid-template-columns: 400px;
+  }
+</style>
+
+<script>
+  const root = getComputedStyle(document.documentElement);
+  function setPropertyAndValue(inputName: string, cssVariable?: string) {
+    const input = document.querySelector(
+      `input[name="${inputName}"]`
+    ) as HTMLInputElement;
+    const output = document.querySelector(
+      `output[for="${inputName}"]`
+    ) as HTMLInputElement;
+    if (!input && !output) return;
+
+    input.value = root.getPropertyValue(cssVariable || `--${inputName}`);
+    output.value = root.getPropertyValue(cssVariable || `--${inputName}`);
+
+    input.addEventListener(
+      "input",
+      (event) => {
+        const target = event.target as HTMLInputElement;
+
+        document.documentElement.style.setProperty(
+          cssVariable || `--${inputName}`,
+          target.value
+        );
+        output.value = target.value;
+      },
+      false
+    );
+  }
+
+  setPropertyAndValue("hex");
+</script>

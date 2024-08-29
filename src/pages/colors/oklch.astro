@@ -1,0 +1,231 @@
+---
+import Layout from "./_Layout.astro";
+
+// https://evilmartians.com/chronicles/oklch-in-css-why-quit-rgb-hsl
+// https://oklch.com/
+// oklch is a color space that is designed to be more perceptually uniform than the RGB and HSL color spaces.
+
+// Lightness, Chroma-background, Hue.
+// Varför är det bättre än HSL/HEX/RGB?
+// För att det är mer perceptuellt uniformt: det ger förutsägbar kontrast som hjälper väldigt med A11Y.
+
+// Men den har också ett par nackdelar:
+// Alla färger är inte tillgängliga i oklch, men browser kommer försöka approximera färgen.
+// Det finns inga officiella verktyg i Figma. Möjligt att det finns plugins, men det har jag inte sett så mycket på.
+
+// Men vad kan det användas till då?
+// Det kan användas för att skapa färgpaletter som är mer tillgängliga.
+// Det går att generera färskalor med bara en färg.
+// calc + oklch = ❤️
+---
+
+<Layout>
+  <div class="layout">
+    <ok-stack gap="m">
+      <div class="example-swatch">
+        <h1>OKLCH!</h1>
+      </div>
+
+      <ok-stack gap="s" horizontal>
+        <ok-stack horizontal justify="space-between">
+          <label for="lightness-background">L</label>
+          <input
+            class="range-slider"
+            name="lightness-background"
+            type="range"
+            min="0"
+            max="100"
+            step="1"
+          />
+        </ok-stack>
+
+        <ok-stack horizontal justify="space-between">
+          <label for="chroma-background">C</label>
+          <input
+            class="range-slider"
+            name="chroma-background"
+            type="range"
+            min="0"
+            max="0.37"
+            step="0.01"
+          />
+        </ok-stack>
+
+        <ok-stack horizontal justify="space-between">
+          <label for="hue-background">H</label>
+          <input
+            class="range-slider"
+            name="hue-background"
+            type="range"
+            min="0"
+            max="360"
+            step="1"
+          />
+        </ok-stack>
+
+        <code style="margin-left: auto">
+          <ok-stack horizontal>
+            oklch(
+            <output class="range-slider-output" for="lightness-background"
+              >-</output
+            >{" "}
+            <output class="range-slider-output" for="chroma-background"
+              >-</output
+            >{" "}
+            <output class="range-slider-output" for="hue-background">-</output>
+            )
+          </ok-stack>
+        </code>
+      </ok-stack>
+
+      <ok-stack gap="s" horizontal>
+        <ok-stack horizontal justify="space-between">
+          <label for="lightness-foreground">L</label>
+          <input
+            class="range-slider"
+            name="lightness-foreground"
+            type="range"
+            min="0"
+            max="100"
+            step="1"
+          />
+        </ok-stack>
+
+        <ok-stack horizontal justify="space-between">
+          <label for="chroma-foreground">C</label>
+          <input
+            class="range-slider"
+            name="chroma-foreground"
+            type="range"
+            min="0"
+            max="0.37"
+            step="0.01"
+          />
+        </ok-stack>
+
+        <ok-stack horizontal justify="space-between">
+          <label for="chroma-foreground">H</label>
+          <input
+            class="range-slider"
+            name="hue-foreground"
+            type="range"
+            min="0"
+            max="360"
+            step="1"
+          />
+        </ok-stack>
+
+        <code style="margin-left: auto">
+          <ok-stack horizontal>
+            oklch(
+            <output class="range-slider-output" for="lightness-foreground"
+              >-</output
+            >{" "}
+            <output class="range-slider-output" for="chroma-foreground"
+              >-</output
+            >{" "}
+            <output class="range-slider-output" for="hue-foreground">-</output>
+            )
+          </ok-stack>
+        </code>
+      </ok-stack>
+    </ok-stack>
+  </div>
+</Layout>
+
+<style>
+  :root {
+    --lightness-background: 90;
+    --chroma-background: 0;
+    --hue-background: 360;
+
+    --lightness-foreground: 0;
+    --chroma-foreground: 0;
+    --hue-foreground: 360;
+  }
+  .example-swatch {
+    width: 100%;
+    aspect-ratio: 1;
+    background-color: oklch(
+      calc(var(--lightness-background) * 1%) var(--chroma-background)
+        var(--hue-background)
+    );
+    color: oklch(
+      calc(var(--lightness-foreground) * 1%) var(--chroma-foreground)
+        var(--hue-foreground)
+    );
+    display: grid;
+    place-content: center;
+    border-radius: 2rem;
+  }
+
+  .range-slider-output {
+    min-width: 7ch;
+    text-align: right;
+    font-family: monospace;
+    background-color: #e8e8e8;
+    border-radius: 1rem;
+    height: 1.2rem;
+    padding: 0.1rem 0.3rem;
+    line-height: 1;
+    display: flex;
+    justify-content: end;
+    align-items: center;
+  }
+
+  body {
+    font-family: system-ui, sans-serif;
+    margin: 0;
+    padding: 0;
+  }
+
+  body {
+    min-height: 100vh;
+    display: grid;
+  }
+
+  .layout {
+    display: grid;
+    place-content: center;
+    gap: 1rem;
+    grid-template-columns: 30rem;
+  }
+</style>
+
+<script>
+  const root = getComputedStyle(document.documentElement);
+  function setPropertyAndValue(inputName: string, cssVariable?: string) {
+    const input = document.querySelector(
+      `input[name="${inputName}"]`
+    ) as HTMLInputElement;
+    const output = document.querySelector(
+      `output[for="${inputName}"]`
+    ) as HTMLInputElement;
+    if (!input && !output) return;
+
+    input.value = root.getPropertyValue(cssVariable || `--${inputName}`);
+    output.value = root.getPropertyValue(cssVariable || `--${inputName}`);
+
+    input.addEventListener(
+      "input",
+      (event) => {
+        const target = event.target as HTMLInputElement;
+
+        document.documentElement.style.setProperty(
+          cssVariable || `--${inputName}`,
+          target.value
+        );
+        output.value = target.value;
+      },
+      false
+    );
+  }
+
+  setPropertyAndValue("lightness-background");
+  setPropertyAndValue("chroma-background");
+  setPropertyAndValue("hue-background");
+
+  setPropertyAndValue("lightness-foreground");
+  setPropertyAndValue("chroma-foreground");
+  setPropertyAndValue("hue-foreground");
+</script>
